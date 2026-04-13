@@ -212,6 +212,10 @@ export function ClientPropertyDrawer({ property, onClose }: ClientPropertyDrawer
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
   }, []);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -228,6 +232,7 @@ export function ClientPropertyDrawer({ property, onClose }: ClientPropertyDrawer
     const delta = startX.current - e.clientX;
     const maxPx = window.innerWidth * (MAX_WIDTH_VW / 100);
     const next = Math.min(maxPx, Math.max(MIN_WIDTH, startWidth.current + delta));
+    if (next === startWidth.current && delta !== 0) return;
     setDrawerWidth(next);
   }, []);
 

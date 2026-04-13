@@ -7,32 +7,13 @@ interface ActivityLogProps {
   entries: ActivityLogEntry[];
 }
 
-export function ActivityLog({ entries }: ActivityLogProps) {
-  const getTypeColor = (type: ActivityLogEntry["type"]) => {
-    switch (type) {
-      case "automated":
-        return "text-cyan-400";
-      case "manual":
-        return "text-amber-400";
-      case "alert":
-        return "text-red-400";
-      default:
-        return "text-zinc-400";
-    }
-  };
+const typeConfig: Record<ActivityLogEntry["type"], { color: string; icon: string }> = {
+  automated: { color: "text-cyan-400", icon: "⚙" },
+  manual: { color: "text-amber-400", icon: "👤" },
+  alert: { color: "text-red-400", icon: "⚠" },
+};
 
-  const getTypeIcon = (type: ActivityLogEntry["type"]) => {
-    switch (type) {
-      case "automated":
-        return "⚙";
-      case "manual":
-        return "👤";
-      case "alert":
-        return "⚠";
-      default:
-        return "•";
-    }
-  };
+export function ActivityLog({ entries }: ActivityLogProps) {
 
   return (
     <div className="border-t border-zinc-800 bg-zinc-950/50">
@@ -46,8 +27,8 @@ export function ActivityLog({ entries }: ActivityLogProps) {
           {entries.map((entry, index) => (
             <div key={index} className="flex items-start gap-3">
               <span className="text-zinc-600">{entry.timestamp}</span>
-              <span className={getTypeColor(entry.type)}>
-                {getTypeIcon(entry.type)}
+              <span className={typeConfig[entry.type].color}>
+                {typeConfig[entry.type].icon}
               </span>
               <span className="flex-1 text-zinc-300">{entry.message}</span>
             </div>

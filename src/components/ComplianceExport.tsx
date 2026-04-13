@@ -1,15 +1,22 @@
 "use client";
 
 import { Download, FileText, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export function ComplianceExport() {
   const [isGenerating, setIsGenerating] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleExport = () => {
     setIsGenerating(true);
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setIsGenerating(false);
       alert(
         "STL-3% Compliance PDF Generated Successfully!\n\nDocument: STL_Quarterly_Tax_Report_Q1_2026.pdf\nSize: 2.4 MB\nProperties: 6\nTotal Revenue: $124,850",

@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/context-menu";
 import { Progress } from "@/components/ui/progress";
 import type { Property } from "@/data/mockData";
+import { getRiskBadgeClasses } from "@/lib/utils";
 
 interface PropertyRowProps {
   property: Property;
@@ -48,20 +49,7 @@ export function PropertyRow({
   const [expanded, setExpanded] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  const getRiskColor = (level: Property["riskLevel"]) => {
-    switch (level) {
-      case "critical":
-        return "bg-red-500/10 text-red-400 border-red-500/30";
-      case "high":
-        return "bg-amber-500/10 text-amber-400 border-amber-500/30";
-      case "medium":
-        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/30";
-      case "low":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
-      default:
-        return "bg-zinc-500/10 text-zinc-400 border-zinc-500/30";
-    }
-  };
+  const riskClasses = getRiskBadgeClasses(property.riskLevel);
 
   const getComplianceColor = (progress: number) => {
     if (progress >= 90) return "bg-emerald-500";
@@ -123,7 +111,7 @@ export function PropertyRow({
 
           {!clientMode && (
             <Badge
-              className={`border text-xs ${getRiskColor(property.riskLevel)}`}
+              className={`border text-xs ${riskClasses.pill}`}
             >
               <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
               {property.riskLevel.toUpperCase()}: {property.riskReason}
@@ -291,7 +279,7 @@ export function PropertyRow({
         rowContent
       )}
 
-      {!clientMode && (
+      {editDialogOpen && (
         <PropertyEditDialog
           open={editDialogOpen}
           onOpenChange={setEditDialogOpen}

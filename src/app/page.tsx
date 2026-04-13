@@ -34,6 +34,7 @@ export default function HomePage() {
 
       {selectedProperty && !clientMode ? (
         <PropertyDetailView
+          key={selectedProperty.id}
           property={selectedProperty}
           onBack={() => setSelectedProperty(null)}
         />

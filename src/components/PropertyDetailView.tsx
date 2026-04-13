@@ -32,6 +32,7 @@ import { useState } from "react";
 import { ActivityLog } from "@/components/ActivityLog";
 import { Button } from "@/components/ui/button";
 import type { AccessCode, Property, UpcomingEvent } from "@/data/mockData";
+import { getRiskBadgeClasses } from "@/lib/utils";
 
 interface PropertyDetailViewProps {
   property: Property;
@@ -375,20 +376,7 @@ export function PropertyDetailView({ property, onBack }: PropertyDetailViewProps
   const [showFullLog, setShowFullLog] = useState(false);
   const [managerNotes, setManagerNotes] = useState(property.owner.notes);
 
-  const getRiskColor = (level: Property["riskLevel"]) => {
-    switch (level) {
-      case "critical":
-        return { pill: "bg-red-500/15 text-red-400 border-red-500/30", dot: "bg-red-400" };
-      case "high":
-        return { pill: "bg-amber-500/15 text-amber-400 border-amber-500/30", dot: "bg-amber-400" };
-      case "medium":
-        return { pill: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", dot: "bg-yellow-400" };
-      case "low":
-        return { pill: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", dot: "bg-emerald-400" };
-    }
-  };
-
-  const riskStyle = getRiskColor(property.riskLevel);
+  const riskStyle = getRiskBadgeClasses(property.riskLevel);
 
   const taxReadinessColor =
     property.financial.taxReadiness >= 90

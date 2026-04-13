@@ -1,12 +1,14 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ArrowUpDown, Search, Users, X } from "lucide-react";
+import { Search, Users, X } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { useMemo, useState } from "react";
 import { ClientPropertyDrawer } from "@/components/ClientPropertyDrawer";
+import { SortButton } from "@/components/SortButton";
 import { Input } from "@/components/ui/input";
 import { type Client, mockClients } from "@/data/mockClients";
 import type { Property } from "@/data/mockData";
+import { getClientStatusColor } from "@/lib/utils";
 
 interface ClientViewProps {
   properties: Property[];
@@ -25,40 +27,6 @@ function getSafetyBorderColor(score: number) {
   if (score >= 90) return "border-emerald-500/20 bg-emerald-950/20";
   if (score >= 75) return "border-amber-500/20 bg-amber-950/20";
   return "border-red-500/20 bg-red-950/20";
-}
-
-interface SortButtonProps {
-  field: SortField;
-  label: string;
-  currentField: SortField;
-  currentDirection: SortDirection;
-  onSort: (field: SortField) => void;
-}
-
-function SortButton({ field, label, currentField, currentDirection, onSort }: SortButtonProps) {
-  const active = currentField === field;
-  return (
-    <button
-      type="button"
-      onClick={() => onSort(field)}
-      className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs transition-all ${
-        active
-          ? "bg-cyan-500/20 text-cyan-400 ring-1 ring-cyan-500/30"
-          : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
-      }`}
-    >
-      <span>{label}</span>
-      {active ? (
-        currentDirection === "asc" ? (
-          <ArrowUp className="h-3 w-3" />
-        ) : (
-          <ArrowDown className="h-3 w-3" />
-        )
-      ) : (
-        <ArrowUpDown className="h-3 w-3 opacity-40" />
-      )}
-    </button>
-  );
 }
 
 interface ClientPropertyCardProps {
@@ -243,13 +211,7 @@ export function ClientView({ properties }: ClientViewProps) {
                 <div className="flex shrink-0 items-center gap-3">
                   {client && (
                     <span
-                      className={`text-xs ${
-                        client.status === "active"
-                          ? "text-emerald-400"
-                          : client.status === "pending"
-                            ? "text-amber-400"
-                            : "text-zinc-500"
-                      }`}
+                      className={`text-xs ${getClientStatusColor(client.status)}`}
                     >
                       {client.status}
                     </span>

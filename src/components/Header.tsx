@@ -1,7 +1,7 @@
 "use client";
 
 import { Building2, Search, UserPlus, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ClientDialog } from "@/components/ClientDialog";
 import { ClientIntakeDialog, type ClientIntakeData } from "@/components/ClientIntakeDialog";
 import { PropertyIntakeDialog, type PropertyIntakeData } from "@/components/PropertyIntakeDialog";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { type Client, mockClients } from "@/data/mockClients";
+import { getClientStatusColor } from "@/lib/utils";
 
 interface HeaderProps {
   clientMode: boolean;
@@ -20,39 +21,32 @@ interface HeaderProps {
 export function Header({ clientMode, onClientModeChange, onPropertySearch }: HeaderProps) {
   const [propertySearchQuery, setPropertySearchQuery] = useState("");
   const [clientSearchQuery, setClientSearchQuery] = useState("");
-  const [clientSearchResults, setClientSearchResults] = useState<Client[]>([]);
-  const [showClientResults, setShowClientResults] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientDialog, setShowClientDialog] = useState(false);
   const [showPropertyIntake, setShowPropertyIntake] = useState(false);
   const [showClientIntake, setShowClientIntake] = useState(false);
+
+  const clientSearchResults = useMemo(() => {
+    const q = clientSearchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return mockClients.filter(
+      (client) =>
+        client.name.toLowerCase().includes(q) ||
+        client.email.toLowerCase().includes(q) ||
+        client.phone.includes(clientSearchQuery),
+    );
+  }, [clientSearchQuery]);
+
+  const showClientResults = clientSearchQuery.trim().length > 0;
 
   const handlePropertySearch = (value: string) => {
     setPropertySearchQuery(value);
     onPropertySearch(value);
   };
 
-  const handleClientSearch = (value: string) => {
-    setClientSearchQuery(value);
-    if (value.trim()) {
-      const results = mockClients.filter(
-        (client) =>
-          client.name.toLowerCase().includes(value.toLowerCase()) ||
-          client.email.toLowerCase().includes(value.toLowerCase()) ||
-          client.phone.includes(value),
-      );
-      setClientSearchResults(results);
-      setShowClientResults(true);
-    } else {
-      setClientSearchResults([]);
-      setShowClientResults(false);
-    }
-  };
-
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
     setShowClientDialog(true);
-    setShowClientResults(false);
     setClientSearchQuery("");
   };
 
@@ -132,16 +126,13 @@ export function Header({ clientMode, onClientModeChange, onPropertySearch }: Hea
                   type="text"
                   placeholder="Search clients..."
                   value={clientSearchQuery}
-                  onChange={(e) => handleClientSearch(e.target.value)}
+                  onChange={(e) => setClientSearchQuery(e.target.value)}
                   className="border-zinc-700 bg-zinc-900 pl-9 pr-9 text-white placeholder:text-zinc-500"
                 />
                 {clientSearchQuery && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setClientSearchQuery("");
-                      setShowClientResults(false);
-                    }}
+                    onClick={() => setClientSearchQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
                   >
                     <X className="h-4 w-4" />
@@ -164,13 +155,7 @@ export function Header({ clientMode, onClientModeChange, onPropertySearch }: Hea
                           <div className="text-xs text-zinc-500">{client.email}</div>
                         </div>
                         <div
-                          className={`text-xs ${
-                            client.status === "active"
-                              ? "text-emerald-400"
-                              : client.status === "pending"
-                                ? "text-amber-400"
-                                : "text-zinc-500"
-                          }`}
+                          className={`text-xs ${getClientStatusColor(client.status)}`}
                         >
                           {client.status}
                         </div>
