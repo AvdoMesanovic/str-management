@@ -2,8 +2,7 @@
 
 import { useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
-export function useSupabase(): SupabaseClient {
+export function useSupabase() {
   return useMemo(() => createClient(), []);
 }

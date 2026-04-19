@@ -6,12 +6,13 @@ import { useMemo, useState } from "react";
 import { ClientPropertyDrawer } from "@/components/ClientPropertyDrawer";
 import { SortButton } from "@/components/SortButton";
 import { Input } from "@/components/ui/input";
-import { type Client, mockClients } from "@/data/mockClients";
+import type { Client } from "@/data/mockClients";
 import type { Property } from "@/data/mockData";
 import { getClientStatusColor } from "@/lib/utils";
 
 interface ClientViewProps {
   properties: Property[];
+  clients: Client[];
 }
 
 type SortField = "client" | "property" | "roi" | "safety";
@@ -67,7 +68,7 @@ function ClientPropertyCard({ property, onDoubleClick }: ClientPropertyCardProps
   );
 }
 
-export function ClientView({ properties }: ClientViewProps) {
+export function ClientView({ properties, clients }: ClientViewProps) {
   const [clientSearch, setClientSearch] = useState("");
   const [sortField, setSortField] = useState<SortField>("client");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -75,13 +76,13 @@ export function ClientView({ properties }: ClientViewProps) {
 
   const propertyClientMap = useMemo(() => {
     const map: Record<string, Client> = {};
-    mockClients.forEach((client) => {
+    clients.forEach((client) => {
       client.properties.forEach((propId) => {
         map[propId] = client;
       });
     });
     return map;
-  }, []);
+  }, [clients]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {

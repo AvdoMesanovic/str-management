@@ -2,23 +2,30 @@
 
 import { Building2, Search, UserPlus, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { ClientDialog } from "@/components/ClientDialog";
+import { ClientDialog, type ClientEditData } from "@/components/ClientDialog";
 import { ClientIntakeDialog, type ClientIntakeData } from "@/components/ClientIntakeDialog";
-import { PropertyIntakeDialog, type PropertyIntakeData } from "@/components/PropertyIntakeDialog";
+import { PropertyIntakeDialog } from "@/components/PropertyIntakeDialog";
+import type { PropertyIntakeData } from "@/components/PropertyIntakeDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { type Client, mockClients } from "@/data/mockClients";
+import type { Client } from "@/data/mockClients";
 import { getClientStatusColor } from "@/lib/utils";
 
 interface HeaderProps {
   clientMode: boolean;
   onClientModeChange: (enabled: boolean) => void;
   onPropertySearch: (query: string) => void;
+  onLogoClick: () => void;
+  clients: Client[];
+  onPropertyIntakeSubmit: (data: PropertyIntakeData) => Promise<void>;
+  onClientIntakeSubmit: (data: ClientIntakeData) => Promise<void>;
+  onClientEdit: (clientId: string, data: ClientEditData) => void;
+  onClientDelete: (clientId: string) => void;
 }
 
-export function Header({ clientMode, onClientModeChange, onPropertySearch }: HeaderProps) {
+export function Header({ clientMode, onClientModeChange, onPropertySearch, onLogoClick, clients, onPropertyIntakeSubmit, onClientIntakeSubmit, onClientEdit, onClientDelete }: HeaderProps) {
   const [propertySearchQuery, setPropertySearchQuery] = useState("");
   const [clientSearchQuery, setClientSearchQuery] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -29,13 +36,13 @@ export function Header({ clientMode, onClientModeChange, onPropertySearch }: Hea
   const clientSearchResults = useMemo(() => {
     const q = clientSearchQuery.trim().toLowerCase();
     if (!q) return [];
-    return mockClients.filter(
+    return clients.filter(
       (client) =>
         client.name.toLowerCase().includes(q) ||
         client.email.toLowerCase().includes(q) ||
         client.phone.includes(clientSearchQuery),
     );
-  }, [clientSearchQuery]);
+  }, [clientSearchQuery, clients]);
 
   const showClientResults = clientSearchQuery.trim().length > 0;
 
@@ -51,11 +58,11 @@ export function Header({ clientMode, onClientModeChange, onPropertySearch }: Hea
   };
 
   const handlePropertyIntakeSubmit = (data: PropertyIntakeData) => {
-    alert(`Property "${data.name}" added successfully!`);
+    onPropertyIntakeSubmit(data);
   };
 
   const handleClientIntakeSubmit = (data: ClientIntakeData) => {
-    alert(`Client "${data.name}" added successfully!`);
+    onClientIntakeSubmit(data);
   };
 
   return (
@@ -63,7 +70,7 @@ export function Header({ clientMode, onClientModeChange, onPropertySearch }: Hea
       <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950 backdrop-blur-sm">
         <div className="flex flex-col gap-4 px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <button type="button" onClick={onLogoClick} className="flex cursor-pointer items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600">
                 <svg
                   className="h-6 w-6 text-white"
@@ -79,11 +86,11 @@ export function Header({ clientMode, onClientModeChange, onPropertySearch }: Hea
                   />
                 </svg>
               </div>
-              <div>
+              <div className="text-left">
                 <div className="text-sm text-cyan-400">[PROPRIETARY LOGO]</div>
                 <div className="text-xs text-zinc-500">STL Command Center</div>
               </div>
-            </div>
+            </button>
 
             <div className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2">
               <Label htmlFor="client-mode" className="cursor-pointer text-sm text-zinc-300">
@@ -197,11 +204,14 @@ export function Header({ clientMode, onClientModeChange, onPropertySearch }: Hea
         client={selectedClient}
         open={showClientDialog}
         onOpenChange={setShowClientDialog}
+        onEdit={onClientEdit}
+        onDelete={onClientDelete}
       />
       <PropertyIntakeDialog
         open={showPropertyIntake}
         onOpenChange={setShowPropertyIntake}
         onSubmit={handlePropertyIntakeSubmit}
+        clients={clients}
       />
       <ClientIntakeDialog
         open={showClientIntake}

@@ -28,7 +28,7 @@ import {
   WifiOff,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityLog } from "@/components/ActivityLog";
 import { Button } from "@/components/ui/button";
 import type { AccessCode, Property, UpcomingEvent } from "@/data/mockData";
@@ -326,8 +326,8 @@ function SvgGroupedBar({ data, labels, colors }: SvgGroupedBarProps) {
   const PAD = { top: 4, right: 4, bottom: 16, left: 28 };
   const chartW = W - PAD.left - PAD.right;
   const chartH = H - PAD.top - PAD.bottom;
-  const allVals = data.flat();
-  const maxV = Math.max(...allVals) || 1;
+  const allVals = data.flat().filter((v): v is number => Number.isFinite(v));
+  const maxV = allVals.length > 0 ? Math.max(...allVals) : 1;
   const keysCount = data[0]?.length ?? 1;
   const groupW = chartW / labels.length;
   const barW = (groupW * 0.7) / keysCount;
@@ -346,7 +346,8 @@ function SvgGroupedBar({ data, labels, colors }: SvgGroupedBarProps) {
       {data.map((group, gi) => {
         const groupX = PAD.left + gi * groupW + groupPad;
         return group.map((val, ki) => {
-          const barH = (val / maxV) * chartH;
+          const safeVal = Number.isFinite(val) ? val : 0;
+          const barH = (safeVal / maxV) * chartH;
           const x = groupX + ki * barW;
           const y = PAD.top + chartH - barH;
           return <rect key={`b${gi}-${ki}`} x={x} y={y} width={barW - 1} height={barH} fill={colors[ki]} rx={2} />;
@@ -375,6 +376,10 @@ export function PropertyDetailView({ property, onBack }: PropertyDetailViewProps
   const [events, setEvents] = useState<UpcomingEvent[]>(property.revenue.events);
   const [showFullLog, setShowFullLog] = useState(false);
   const [managerNotes, setManagerNotes] = useState(property.owner.notes);
+
+  useEffect(() => {
+    setEvents(property.revenue.events);
+  }, [property.revenue.events]);
 
   const riskStyle = getRiskBadgeClasses(property.riskLevel);
 

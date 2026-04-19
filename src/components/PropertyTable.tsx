@@ -5,18 +5,22 @@ import { ClientView } from "@/components/ClientView";
 import type { PropertyEditData } from "@/components/PropertyEditDialog";
 import { PropertyRow } from "@/components/PropertyRow";
 import { SortButton } from "@/components/SortButton";
+import type { Client } from "@/data/mockClients";
 import type { Property } from "@/data/mockData";
 
 interface PropertyTableProps {
   properties: Property[];
   clientMode: boolean;
+  clients: Client[];
   onSelectProperty?: (property: Property) => void;
+  onEdit?: (propertyId: string, data: PropertyEditData) => void;
+  onDelete?: (propertyId: string) => void;
 }
 
 type SortField = "name" | "risk" | "compliance" | "roi";
 type SortDirection = "asc" | "desc";
 
-export function PropertyTable({ properties, clientMode, onSelectProperty }: PropertyTableProps) {
+export function PropertyTable({ properties, clientMode, clients, onSelectProperty, onEdit, onDelete }: PropertyTableProps) {
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -44,7 +48,7 @@ export function PropertyTable({ properties, clientMode, onSelectProperty }: Prop
   }, [properties, sortField, sortDirection]);
 
   if (clientMode) {
-    return <ClientView properties={properties} />;
+    return <ClientView properties={properties} clients={clients} />;
   }
 
   const handleSort = (field: SortField) => {
@@ -55,10 +59,6 @@ export function PropertyTable({ properties, clientMode, onSelectProperty }: Prop
       setSortDirection("asc");
     }
   };
-
-  // TODO: wire up real edit/delete handlers when backend is ready
-  const handleEdit = (_propertyId: string, _data: PropertyEditData) => {};
-  const handleDelete = (_propertyId: string) => {};
 
   return (
     <div className="flex-1 overflow-auto">
@@ -81,8 +81,8 @@ export function PropertyTable({ properties, clientMode, onSelectProperty }: Prop
             key={property.id}
             property={property}
             clientMode={false}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onEdit={onEdit}
+            onDelete={onDelete}
             onSelectProperty={onSelectProperty}
           />
         ))}
