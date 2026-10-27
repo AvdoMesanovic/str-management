@@ -82,7 +82,7 @@ git clone https://github.com/AvdoMesanovic/str-management.git
 npm install
 
 # Set up local environment variables
-cp .env.local.example .env.local
+cp .env.local
 ```
 
 ### Environment Variables
