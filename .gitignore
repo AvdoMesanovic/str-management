@@ -23,7 +23,6 @@
 
 # Environment
 .env*.local
-!.env.local.example
 
 # TypeScript
 *.tsbuildinfo
