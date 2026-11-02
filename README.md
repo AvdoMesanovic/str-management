@@ -118,11 +118,3 @@ This platform is designed to operate within the "Safe Harbor" of Missouri RSMo 3
 
 - **No Brokerage:** The system does not negotiate leases or handle owner funds.
 - **Transparency:** All platform-level data is mirrored in the "Client Mode" view for owner oversight.
-
-## License
-
-All Rights Reserved.
-
-Copyright (c) 2026 Avdo Mesanovic.
-
-Proprietary software. Unauthorized copying, modification, or distribution of this code via any medium is strictly prohibited.
